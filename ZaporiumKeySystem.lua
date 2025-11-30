@@ -1,4 +1,4 @@
--- Zaporium Key System - Updated with "Get Key" button
+-- Zaporium Key System - Updated with "Get Key" button and case-insensitive validation
 -- Paste this as your new ZaporiumKeySystem.lua
 
 local ZaporiumKeySystem = {}
@@ -72,11 +72,11 @@ function ZaporiumKeySystem.new(config)
 
     -- "Get Key" Button Action
     getKeyBtn.MouseButton1Click:Connect(function()
-        local keyLink = "https://cheyt2025-cyber.github.io/Keysystem/?verified=true"
+        local keyLink = "https://cheyt2025-cyber.github.io/Keysystem/"  -- Points to your HTML
         setclipboard(keyLink)  -- Auto copy to clipboard
         game.StarterGui:SetCore("SendNotification", {
             Title = "Zaporium Key";
-            Text = "Key link copied! Opening in browser...";
+            Text = "Key generator link copied! Opening in browser...";
             Duration = 4;
         })
         -- Open in default browser
@@ -93,7 +93,7 @@ function ZaporiumKeySystem.new(config)
     end)
 
     checkBtn.MouseButton1Click:Connect(function()
-        local key = input.Text:gsub("%s+", "")
+        local key = input.Text:gsub("%s+", ""):upper()  -- Trim & uppercase for case-insensitivity
         if key == "" then
             status.Text = "Please enter a key!"
             status.TextColor3 = Color3.fromRGB(255, 100, 100)
@@ -103,7 +103,7 @@ function ZaporiumKeySystem.new(config)
         if config.ValidateKey and config.ValidateKey(key) then
             status.Text = "Key Accepted! Loading..."
             status.TextColor3 = Color3.fromRGB(0, 255, 0)
-            wait(1)
+            task.wait(1)
             gui:Destroy()
             if config.OnSuccess then
                 config.OnSuccess()
@@ -114,7 +114,12 @@ function ZaporiumKeySystem.new(config)
         end
     end)
 
-    return gui
+    -- Auto-show GUI
+    function show() gui.Enabled = true end
+    gui.Enabled = true
+    show()
+
+    return { Show = show }
 end
 
 return ZaporiumKeySystem
