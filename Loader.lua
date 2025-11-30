@@ -1,22 +1,10 @@
 -- Loader.lua - Universal Zaporium Hub Loader
 -- Paste this on GitHub, this is your main loadstring
 
-local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/ZaporiumKeySystem.lua"))()
--- Your valid keys (you can change anytime)
--- SECURE KEY CHECK (paste this in Loader.lua, replace the old key check)
-local ValidationURL = "https://discord.com/api/webhooks/1444663666531369052/Cx0EFQn3F3oHcjuq6aXKNM5G5IGHZGY3KepjpcspWlTyAo2VbxpHGiqox-zv2LguOOko"  -- ← change this
+local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/YourUsername/ZaporiumKeySystem/main/ZaporiumKeySystem.lua"))()
 
-local function isKeyValid(inputKey)
-    inputKey = inputKey:gsub("%s+", "")
-    if #inputKey < 3 then return false end
-    
-    local success, response = pcall(function()
-        return game:HttpGet(ValidationURL .. "?key=" .. inputKey)
-    end)
-    
-    if not success then return false end
-    return response:find("VALID") ~= nil  -- server must reply with the word "VALID"
-end
+-- Your valid keys (you can change anytime)
+local VALID_KEYS = {"Sub2ScriptZap", "ScriptZapVIP", "KickABrainrot", "FreeKey2025"}
 
 -- Game Detection + Scripts
 local Games = {
@@ -27,7 +15,7 @@ local Games = {
     [12690025832] = "https://raw.githubusercontent.com/YourUsername/BladeBall/main.lua",    -- Blade Ball
     [13772394625] = "https://raw.githubusercontent.com/YourUsername/BladeBall/main.lua",    -- Blade Ball Alt
     [6403373529]  = "https://raw.githubusercontent.com/YourUsername/SlapBattles/main.lua",  -- Slap Battles
-    [168556275]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Console",   -- Baseplate
+    [155615604]   = "https://raw.githubusercontent.com/YourUsername/PrisonLife/main.lua",   -- Prison Life
     
     -- Add 100+ more games like this ↓
     -- [GamePlaceId] = "https://yourscriptlink.com/script.lua",
