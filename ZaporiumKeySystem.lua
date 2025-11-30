@@ -1,125 +1,120 @@
--- Zaporium Key System - Updated with "Get Key" Button
--- Original design preserved, only "COPY KEY" → "Get Key" + copies your link
+-- Zaporium Key System - Updated with "Get Key" button
+-- Paste this as your new ZaporiumKeySystem.lua
 
 local ZaporiumKeySystem = {}
 
 function ZaporiumKeySystem.new(config)
     local gui = Instance.new("ScreenGui")
-    gui.Name = "ZaporiumKeySystem"
-    gui.ResetOnSpawn = false
-    gui.Parent = game.CoreGui
-
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 400, 0, 300)
-    frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+    local title = Instance.new("TextLabel")
+    local input = Instance.new("TextBox")
+    local checkBtn = Instance.new("TextButton")
+    local getKeyBtn = Instance.new("TextButton")  -- This is the new "Get Key" button
+    local status = Instance.new("TextLabel")
+
+    gui.Name = "ZaporiumKeySystem"
+    gui.Parent = game.CoreGui
+    gui.ResetOnSpawn = false
+
+    frame.Size = UDim2.new(0, 350, 0, 200)
+    frame.Position = UDim2.new(0.5, -175, 0.5, -100)
     frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     frame.BorderSizePixel = 2
     frame.BorderColor3 = Color3.fromRGB(0, 170, 255)
     frame.Parent = gui
 
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = frame
-
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 0, 50)
+    title.Size = UDim2.new(1, 0, 0, 40)
     title.BackgroundTransparency = 1
-    title.Text = "ZAPORIUM HUB"
+    title.Text = config.Title or "ZAPORIUM HUB"
     title.TextColor3 = Color3.fromRGB(0, 255, 255)
     title.Font = Enum.Font.GothamBold
-    title.TextSize = 28
+    title.TextSize = 24
     title.Parent = frame
 
-    local desc = Instance.new("TextLabel")
-    desc.Size = UDim2.new(0.9, 0, 0, 60)
-    desc.Position = UDim2.new(0.05, 0, 0.15, 0)
-    desc.BackgroundTransparency = 1
-    desc.Text = "Enter your key below to continue.\nKeys expire after 24 hours."
-    desc.TextColor3 = Color3.fromRGB(200, 200, 200)
-    desc.Font = Enum.Font.Gotham
-    desc.TextSize = 16
-    desc.TextWrapped = true
-    desc.Parent = frame
-
-    local input = Instance.new("TextBox")
-    input.Size = UDim2.new(0.9, 0, 0, 50)
-    input.Position = UDim2.new(0.05, 0, 0.45, 0)
+    input.Size = UDim2.new(0.9, 0, 0, 40)
+    input.Position = UDim2.new(0.05, 0, 0.3, 0)
     input.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    input.BorderSizePixel = 1
     input.BorderColor3 = Color3.fromRGB(0, 170, 255)
-    input.PlaceholderText = "Enter key here..."
     input.TextColor3 = Color3.fromRGB(255, 255, 255)
+    input.PlaceholderText = "Enter your key here..."
+    input.Text = ""
     input.Font = Enum.Font.Gotham
     input.TextSize = 18
-    input.ClearTextOnFocus = false
     input.Parent = frame
 
-    local corner2 = Instance.new("UICorner")
-    corner2.CornerRadius = UDim.new(0, 8)
-    corner2.Parent = input
+    checkBtn.Size = UDim2.new(0.42, 0, 0, 40)
+    checkBtn.Position = UDim2.new(0.05, 0, 0.7, 0)
+    checkBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+    checkBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
+    checkBtn.Text = "Check Key"
+    checkBtn.Font = Enum.Font.GothamBold
+    checkBtn.TextSize = 18
+    checkBtn.Parent = frame
 
-    -- GET KEY BUTTON (replaces old "COPY KEY")
-    local getKeyBtn = Instance.new("TextButton")
-    getKeyBtn.Size = UDim2.new(0.9, 0, 0, 50)
-    getKeyBtn.Position = UDim2.new(0.05, 0, 0.65, 0)
-    getKeyBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+    -- "Get Key" Button (replaces old Copy Key)
+    getKeyBtn.Size = UDim2.new(0.42, 0, 0, 40)
+    getKeyBtn.Position = UDim2.new(0.53, 0, 0.7, 0)
+    getKeyBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+    getKeyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     getKeyBtn.Text = "Get Key"
-    getKeyBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
     getKeyBtn.Font = Enum.Font.GothamBold
-    getKeyBtn.TextSize = 20
+    getKeyBtn.TextSize = 18
     getKeyBtn.Parent = frame
 
-    local corner3 = Instance.new("UICorner")
-    corner3.CornerRadius = UDim.new(0, 8)
-    corner3.Parent = getKeyBtn
+    status.Size = UDim2.new(0.9, 0, 0, 30)
+    status.Position = UDim2.new(0.05, 0, 0.55, 0)
+    status.BackgroundTransparency = 1
+    status.Text = ""
+    status.TextColor3 = Color3.fromRGB(255, 255, 0)
+    status.Font = Enum.Font.Gotham
+    status.TextSize = 16
+    status.Parent = frame
 
-    -- Success message (hidden by default)
-    local successLabel = Instance.new("TextLabel")
-    successLabel.Size = UDim2.new(0.9, 0, 0, 40)
-    successLabel.Position = UDim2.new(0.05, 0, 0.85, 0)
-    successLabel.BackgroundTransparency = 1
-    successLabel.Text = "Success! Enjoy Zaporium Hub"
-    successLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-    successLabel.Font = Enum.Font.GothamBold
-    successLabel.TextSize = 18
-    successLabel.Visible = false
-    successLabel.Parent = frame
-
-    -- GET KEY BUTTON ACTION
+    -- "Get Key" Button Action
     getKeyBtn.MouseButton1Click:Connect(function()
-        setclipboard("https://cheyt2025-cyber.github.io/Keysystem/?verified=true")
-        getKeyBtn.Text = "Link Copied!"
-        task.wait(2)
-        getKeyBtn.Text = "Get Key"
+        local keyLink = "https://cheyt2025-cyber.github.io/Keysystem/?verified=true"
+        setclipboard(keyLink)  -- Auto copy to clipboard
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "Zaporium Key";
+            Text = "Key link copied! Opening in browser...";
+            Duration = 4;
+        })
+        -- Open in default browser
+        if syn and syn.request then
+            syn.request({Url = keyLink})
+        elseif request then
+            request({Url = keyLink})
+        else
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Error";
+                Text = "Executor doesn't support opening links";
+            })
+        end
     end)
 
-    -- Key validation
-    local function validate()
+    checkBtn.MouseButton1Click:Connect(function()
         local key = input.Text:gsub("%s+", "")
+        if key == "" then
+            status.Text = "Please enter a key!"
+            status.TextColor3 = Color3.fromRGB(255, 100, 100)
+            return
+        end
+
         if config.ValidateKey and config.ValidateKey(key) then
-            successLabel.Visible = true
-            input.Visible = false
-            getKeyBtn.Visible = false
+            status.Text = "Key Accepted! Loading..."
+            status.TextColor3 = Color3.fromRGB(0, 255, 0)
+            wait(1)
+            gui:Destroy()
             if config.OnSuccess then
-                task.wait(1)
                 config.OnSuccess()
             end
         else
-            input.Text = ""
-            input.PlaceholderText = "Invalid key! Try again."
-        end
-    end
-
-    input.FocusLost:Connect(function(enterPressed)
-        if enterPressed then
-            validate()
+            status.Text = "Invalid or Expired Key!"
+            status.TextColor3 = Color3.fromRGB(255, 100, 100)
         end
     end)
 
-    return {
-        Show = function() gui.Enabled = true end,
-        Hide = function() gui.Enabled = false end
-    }
+    return gui
 end
 
 return ZaporiumKeySystem
