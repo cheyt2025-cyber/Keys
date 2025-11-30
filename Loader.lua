@@ -3,7 +3,20 @@
 
 local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/ZaporiumKeySystem.lua"))()
 -- Your valid keys (you can change anytime)
-local VALID_KEYS = {"Sub2ScriptZap", "ScriptZapVIP", "KickABrainrot", "FreeKey2025"}
+-- SECURE KEY CHECK (paste this in Loader.lua, replace the old key check)
+local ValidationURL = "https://discord.com/api/webhooks/1444663666531369052/Cx0EFQn3F3oHcjuq6aXKNM5G5IGHZGY3KepjpcspWlTyAo2VbxpHGiqox-zv2LguOOko"  -- ← change this
+
+local function isKeyValid(inputKey)
+    inputKey = inputKey:gsub("%s+", "")
+    if #inputKey < 3 then return false end
+    
+    local success, response = pcall(function()
+        return game:HttpGet(ValidationURL .. "?key=" .. inputKey)
+    end)
+    
+    if not success then return false end
+    return response:find("VALID") ~= nil  -- server must reply with the word "VALID"
+end
 
 -- Game Detection + Scripts
 local Games = {
