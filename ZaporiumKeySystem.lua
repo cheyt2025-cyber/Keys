@@ -207,26 +207,20 @@ function ZaporiumKeySystem:Show()
     -- Verify Button
     Verify.MouseButton1Click:Connect(function()
         local input = KeyBox.Text:gsub("%s", "") -- trim
-        Verify.MouseButton1Click:Connect(function()
-    local input = KeyBox.Text:gsub("%s", "")
-
-    Status.Text = "Validating key..."
-    Status.TextColor3 = Color3.fromRGB(255, 200, 0)
-
-    if isKeyValid(input) then
-        saveKey(input)
-        Status.Text = "Accepted! (Valid for "..self.DurationHours.."h)"
-        Status.TextColor3 = Color3.fromRGB(100, 255, 150)
-        task.wait(0.9)
-        ScreenGui:Destroy()
-        self.OnSuccess()
-    else
-        Status.Text = "Invalid or expired key"
-        Status.TextColor3 = Color3.fromRGB(255, 80, 80)
-        task.wait(1.2)
-        Player:Kick("\nWrong key detected. Don't share leaked keys.")
-    end
-end)
+        if table.find(self.ValidKeys, input) then
+            saveKey(input)
+            Status.Text = "Accepted! (Valid for "..self.DurationHours.."h)"
+            Status.TextColor3 = Color3.fromRGB(100, 255, 150)
+            task.wait(0.9)
+            ScreenGui:Destroy()
+            self.OnSuccess()
+        else
+            Status.Text = "Wrong key"
+            Status.TextColor3 = Color3.fromRGB(255, 100, 100)
+            task.wait(1)
+            Player:Kick("\nDon't enter a wrong key!")
+        end
+    end)
 
     -- Copy Key Button
     if CopyKey then
