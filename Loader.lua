@@ -1,46 +1,45 @@
--- Loader.lua - Universal Zaporium Hub Loader
--- Paste this on GitHub, this is your main loadstring
+-- ZAPORIUM HUB LOADER - 100% SECURE (keys never exposed)
+-- Paste this as your main loader
 
 local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/ZaporiumKeySystem.lua"))()
 
--- Your valid keys (add this!)
-local VALID_KEYS = {"Sub2ScriptZap", "ScriptZapVIP", "KickABrainrot", "FreeKey2025"}
+-- This tiny proxy checks if the key was actually claimed on your web page
+local PROXY_URL = "https://cheyt2025-cyber.github.io/Keysystem/validate.php?key="
 
--- Game Detection + Scripts
+local function isKeyValid(inputKey)
+    inputKey = inputKey:gsub("%s+", ""):upper()
+    if #inputKey < 10 then return false end
+
+    local success, response = pcall(function()
+        return game:HttpGet(PROXY_URL .. inputKey, true)
+    end)
+
+    if not success then return false end
+    return response == "VALID"
+end
+
+-- Your games
 local Games = {
-    -- [PlaceId] = "raw github link to your script"
-    [2788229376]  = "https://raw.githubusercontent.com/YourUsername/Arsenal/main.lua",     -- Arsenal
-    [1962086868]  = "https://raw.githubusercontent.com/YourUsername/TowerOfHell/main.lua", -- Tower of Hell
-    [286090429]   = "https://raw.githubusercontent.com/YourUsername/Arsenal/main.lua",     -- Arsenal (old ID)
-    [12690025832] = "https://raw.githubusercontent.com/YourUsername/BladeBall/main.lua",    -- Blade Ball
-    [13772394625] = "https://raw.githubusercontent.com/YourUsername/BladeBall/main.lua",    -- Blade Ball Alt
-    [6403373529]  = "https://raw.githubusercontent.com/YourUsername/SlapBattles/main.lua",  -- Slap Battles
-    [168556275]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Console",   -- Baseplate
-    
-    -- Add 100+ more games like this ↓
-    -- [GamePlaceId] = "https://yourscriptlink.com/script.lua",
+    [2788229376]  = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/main/Arsenal",     -- Arsenal
+    [12690025832] = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/main/BladeBall",   -- Blade Ball
+    [6403373529]  = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/main/SlapBattles", -- Slap Battles
+    -- Add more...
 }
 
-local PlaceId = game.PlaceId
-local ScriptLink = Games[PlaceId]
-
--- Show key system
 ZaporiumKeySystem.new({
-    Keys = VALID_KEYS,
-    Duration = 24,
     Title = "ZAPORIUM HUB",
-    ShowCopyButton = true,
+    Duration = 24,
     OnSuccess = function()
-        if ScriptLink then
-            print("Game detected! Loading script...")
-            loadstring(game:HttpGet(ScriptLink))()
+        local link = Games[game.PlaceId]
+        if link then
+            loadstring(game:HttpGet(link))()
         else
-            warn("This game is not supported yet!")
             game.StarterGui:SetCore("SendNotification", {
                 Title = "Zaporium Hub";
-                Text = "Game not supported yet! Join our Discord for updates.";
+                Text = "Game not supported yet!";
                 Duration = 8;
             })
         end
-    end
+    end,
+    ValidateKey = isKeyValid  -- This is the magic line
 }):Show()
