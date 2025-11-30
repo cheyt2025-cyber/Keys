@@ -2,10 +2,10 @@
 local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/ZaporiumKeySystem.lua"))()
 
 -- Secure validation — only checks if key exists on your website (no keys in script)
-local VALIDATION_URL = "https://cheyt2025-cyber.github.io/Keysystem/validate.txt"
+local VALIDATION_URL = "https://raw.githubusercontent.com/cheyt2025-cyber/Keysystem/refs/heads/main/validate.txt"  -- Update to your PHP/static URL if hosted elsewhere
 
 local function isKeyValid(inputKey)
-    inputKey = inputKey:gsub("%s+", ""):upper()
+    inputKey = inputKey:gsub("%s+", ""):upper()  -- Trim & uppercase
     if #inputKey < 10 then return false end
     
     local success, response = pcall(function()
@@ -13,7 +13,7 @@ local function isKeyValid(inputKey)
     end)
     
     if not success then return false end
-    return response == "VALID"
+    return response:find("VALID")  -- Flexible match for "VALID" response
 end
 
 -- Your games (comments preserved exactly as requested)
@@ -53,4 +53,4 @@ ZaporiumKeySystem.new({
             })
         end
     end
-}):Show()
+})
