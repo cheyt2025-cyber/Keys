@@ -1,4 +1,4 @@
--- ZaporiumKeySystem.lua → NOW WITH PERMANENT KEY SAVING (until 24h expires
+-- ZaporiumKeySystem.lua → NOW WITH PERMANENT KEY SAVING (until 24h expires)
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
@@ -86,7 +86,7 @@ function ZaporiumKeySystem.new(config)
     status.TextSize = 16
     status.Parent = frame
 
-    -- Get Key button
+    -- Get Key button (updated to your fixed HTML URL)
     getKeyBtn.MouseButton1Click:Connect(function()
         setclipboard("https://cheyt2025-cyber.github.io/Keysystem/")
         game.StarterGui:SetCore("SendNotification",{Title="Zaporium";Text="Link copied! Opening...";Duration=4})
