@@ -7,6 +7,9 @@ local SAVE_FILE = "ZaporiumKeySave.txt"
 local function isKeyValid(key)
     key = key:gsub("%s+", ""):upper()
     if #key < 10 then return false end
+    -- Basic ZAP format check (trusts HTML generator)
+    if not key:match("^ZAP%-[%w]+%-[%w]+%-[%w]+$") then return false end
+    -- Dummy server check (always passes if format OK, since validate.txt is minimal)
     local success, response = pcall(function()
         return game:HttpGet(VALIDATION_URL .. "?key=" .. key)
     end)
