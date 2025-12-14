@@ -1,5 +1,5 @@
--- ZaporiumKeySystem.lua → FINAL FIXED VERSION
--- Sci-fi theme, perfect layout (no overlaps), uses proxy for reliable validation
+-- ZaporiumKeySystem.lua → FINAL PERFECT VERSION
+-- Sci-fi theme, no overlaps, buttons perfectly inside border with proper padding
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -25,10 +25,10 @@ function ZaporiumKeySystem.new(config)
         end
     end
 
-    -- Main Frame
+    -- Main Frame (slightly taller for perfect spacing)
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 350, 0, 220)  -- Slightly taller to prevent any squeeze
-    frame.Position = UDim2.new(0.5, -175, 0.5, -110)
+    frame.Size = UDim2.new(0, 360, 0, 240)  -- Increased width/height for better padding
+    frame.Position = UDim2.new(0.5, -180, 0.5, -120)
     frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
     frame.BorderSizePixel = 0
     frame.Parent = gui
@@ -59,26 +59,26 @@ function ZaporiumKeySystem.new(config)
     title.Text = "ZAPORIUM HUB"
     title.TextColor3 = Color3.fromRGB(0, 255, 255)
     title.Font = Enum.Font.Code
-    title.TextSize = 32
+    title.TextSize = 34
     title.TextStrokeTransparency = 0.8
     title.TextStrokeColor3 = Color3.fromRGB(0, 255, 255)
     title.Parent = frame
 
     -- Description
     local desc = Instance.new("TextLabel")
-    desc.Size = UDim2.new(0.9, 0, 0, 25)
-    desc.Position = UDim2.new(0.05, 0, 0.23, 0)
+    desc.Size = UDim2.new(0.9, 0, 0, 30)
+    desc.Position = UDim2.new(0.05, 0, 0.22, 0)
     desc.BackgroundTransparency = 1
     desc.Text = "Enter your 24-hour beta key"
     desc.TextColor3 = Color3.fromRGB(200, 200, 200)
     desc.Font = Enum.Font.Code
-    desc.TextSize = 16
+    desc.TextSize = 17
     desc.Parent = frame
 
     -- Input Box
     local input = Instance.new("TextBox")
     input.Size = UDim2.new(0.9, 0, 0, 45)
-    input.Position = UDim2.new(0.05, 0, 0.38, 0)
+    input.Position = UDim2.new(0.05, 0, 0.36, 0)
     input.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     input.PlaceholderText = "ZAP-XXXX-XXXX-XXXX"
     input.Text = ""
@@ -99,24 +99,25 @@ function ZaporiumKeySystem.new(config)
 
     -- Status
     local status = Instance.new("TextLabel")
-    status.Size = UDim2.new(0.9, 0, 0, 25)
-    status.Position = UDim2.new(0.05, 0, 0.58, 0)
+    status.Size = UDim2.new(0.9, 0, 0, 30)
+    status.Position = UDim2.new(0.05, 0, 0.54, 0)
     status.BackgroundTransparency = 1
     status.Text = ""
     status.TextColor3 = Color3.fromRGB(255, 255, 100)
     status.Font = Enum.Font.Code
     status.TextSize = 16
+    status.TextWrapped = true
     status.Parent = frame
 
-    -- Verify Button
+    -- Verify Button (smaller, better spaced)
     local checkBtn = Instance.new("TextButton")
-    checkBtn.Size = UDim2.new(0.9, 0, 0, 45)
-    checkBtn.Position = UDim2.new(0.05, 0, 0.68, 0)
+    checkBtn.Size = UDim2.new(0.9, 0, 0, 42)
+    checkBtn.Position = UDim2.new(0.05, 0, 0.66, 0)
     checkBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
     checkBtn.Text = "Verify Key"
     checkBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
     checkBtn.Font = Enum.Font.Code
-    checkBtn.TextSize = 22
+    checkBtn.TextSize = 20
     checkBtn.AutoButtonColor = false
     checkBtn.Parent = frame
 
@@ -138,10 +139,10 @@ function ZaporiumKeySystem.new(config)
         TweenService:Create(checkBtn, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
     end)
 
-    -- Get Key Button (now fits perfectly inside)
+    -- Get Key Button (smaller, perfectly inside border)
     local getKeyBtn = Instance.new("TextButton")
-    getKeyBtn.Size = UDim2.new(0.9, 0, 0, 35)
-    getKeyBtn.Position = UDim2.new(0.05, 0, 0.88, 0)  -- Raised up to fit inside border
+    getKeyBtn.Size = UDim2.new(0.9, 0, 0, 36)
+    getKeyBtn.Position = UDim2.new(0.05, 0, 0.83, 0)  -- Proper bottom padding
     getKeyBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     getKeyBtn.Text = "Get Key → Opens Generator"
     getKeyBtn.TextColor3 = Color3.fromRGB(0, 255, 255)
