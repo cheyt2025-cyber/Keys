@@ -1,38 +1,48 @@
--- ZAPORIUM HUB LOADER - FINAL FIXED VERSION (Rejoin works perfectly)
+-- ZAPORIUM HUB LOADER - UPDATED FOR YOUR WEBSITE (True 24h Expiry + Server Validation)
+-- Site: http://Zaporium-Key.infinityfree.me
+-- Key validation now fully controlled by your website (keys expire after 24 hours server-side)
+
 local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/ZaporiumKeySystem.lua"))()
 
-local VALIDATION_URL = "https://raw.githubusercontent.com/cheyt2025-cyber/Keysystem/refs/heads/main/validate.txt"
+-- NEW: Validation URL points to your website's validate.php
+local VALIDATION_URL = "http://Zaporium-Key.infinityfree.me/validate.php?key="
+
 local SAVE_FILE = "ZaporiumKeySave.txt"
 
 local function isKeyValid(key)
     key = key:gsub("%s+", ""):upper()
     if #key < 10 then return false end
-    -- Basic ZAP format check (trusts HTML generator)
+    -- Format check (ZAP-XXXX-XXXX-XXXX)
     if not key:match("^ZAP%-[%w]+%-[%w]+%-[%w]+$") then return false end
-    -- Dummy server check (always passes if format OK, since validate.txt is minimal)
+    
+    -- Server-side validation (checks if key exists AND not expired)
     local success, response = pcall(function()
-        return game:HttpGet(VALIDATION_URL .. "?key=" .. key)
+        return game:HttpGet(VALIDATION_URL .. key)
     end)
-    if not success then return false end
+    if not success then 
+        warn("[Zaporium] Validation failed (no internet or server down)")
+        return false 
+    end
     return response:find("VALID") ~= nil
 end
 
 local function scheduleDeleteAfter24h()
-    task.delay(24*60*60, function()
+    task.delay(24*60*60 + 60, function()  -- +60s buffer
         if isfile and isfile(SAVE_FILE) then
             delfile(SAVE_FILE)
-            print("[Zaporium] 24h expired → saved key deleted")
+            print("[Zaporium] 24h expired → saved key deleted locally")
         end
     end)
 end
 
--- Try to use saved key → load instantly
+-- Try saved key first (instant load if still valid)
 if isfile and isfile(SAVE_FILE) then
     local savedKey = readfile(SAVE_FILE):gsub("%s+", ""):upper()
     if isKeyValid(savedKey) then
-        print("[Zaporium] Saved key valid → loading script instantly...")
+        print("[Zaporium] Saved key still valid → loading instantly...")
         scheduleDeleteAfter24h()
-        -- GAME LIST (exactly the same as yours)
+        
+        -- FULL GAME LIST (kept exactly as your original)
         local Games = {
             [99879949355467]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Army%20Factory",
             [99421051519131]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Color%20Game%20Inf",
@@ -63,15 +73,16 @@ if isfile and isfile(SAVE_FILE) then
                 Duration = 8
             })
         end
-        return  -- ← super important: stop the script here so GUI never shows
+        return  -- Stop here: no GUI shown
     else
-        if isfile(SAVE_FILE) then delfile(SAVE_FILE) end  -- invalid saved key → delete it
+        if isfile(SAVE_FILE) then delfile(SAVE_FILE) end
     end
 end
 
--- If no saved key or saved key expired → show GUI normally
+-- No valid saved key → show key GUI
 ZaporiumKeySystem.new({
     Title = "ZAPORIUM HUB",
+    Description = "Get key at: Zaporium-Key.infinityfree.me",
     ValidateKey = function(key)
         local valid = isKeyValid(key)
         if valid and writefile then
