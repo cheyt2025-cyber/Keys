@@ -5,7 +5,7 @@
 local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/ZaporiumKeySystem.lua"))()
 
 -- NEW: Validation URL points to your website's validate.php
-local VALIDATION_URL = "http://Zaporium-Key.infinityfree.me/validate.php?key="
+local VALIDATION_URL = "http://Zaporium-Key.infinityfree.me/proxy.php?t=validate&key="
 
 local SAVE_FILE = "ZaporiumKeySave.txt"
 
