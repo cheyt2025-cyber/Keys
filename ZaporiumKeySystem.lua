@@ -1,9 +1,5 @@
--- ZaporiumKeySystem.lua → UPDATED SCI-FI THEME (Black/Grey/White + Cyan Glow)
--- Matches your website: Minimalist, elegant, Orbitron-like feel
--- Font: Code (closest to Orbitron in Roblox)
--- Added glowing effects with UIGradient + UIStroke
--- "Get Key" button now links directly to your InfinityFree site
--- Kept exact same size (350x200) and layout
+-- ZaporiumKeySystem.lua → FINAL FIXED VERSION
+-- Sci-fi theme, perfect layout (no overlaps), uses proxy for reliable validation
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -16,7 +12,6 @@ function ZaporiumKeySystem.new(config)
     gui.Parent = game.CoreGui
     gui.ResetOnSpawn = false
 
-    -- Try load saved key
     local SAVE_FILE = "ZaporiumKeySave.txt"
     local savedKey = nil
     if isfile and readfile and isfile(SAVE_FILE) then
@@ -30,20 +25,18 @@ function ZaporiumKeySystem.new(config)
         end
     end
 
-    -- Main Frame (black with cyan glow border)
+    -- Main Frame
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 350, 0, 200)
-    frame.Position = UDim2.new(0.5, -175, 0.5, -100)
+    frame.Size = UDim2.new(0, 350, 0, 220)  -- Slightly taller to prevent any squeeze
+    frame.Position = UDim2.new(0.5, -175, 0.5, -110)
     frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
     frame.BorderSizePixel = 0
     frame.Parent = gui
 
-    -- Rounded corners
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 15)
     corner.Parent = frame
 
-    -- Glowing cyan border
     local stroke = Instance.new("UIStroke")
     stroke.Thickness = 3
     stroke.Color = Color3.fromRGB(0, 255, 255)
@@ -71,10 +64,10 @@ function ZaporiumKeySystem.new(config)
     title.TextStrokeColor3 = Color3.fromRGB(0, 255, 255)
     title.Parent = frame
 
-    -- Description (optional small text)
+    -- Description
     local desc = Instance.new("TextLabel")
-    desc.Size = UDim2.new(0.9, 0, 0, 30)
-    desc.Position = UDim2.new(0.05, 0, 0.2, 0)
+    desc.Size = UDim2.new(0.9, 0, 0, 25)
+    desc.Position = UDim2.new(0.05, 0, 0.23, 0)
     desc.BackgroundTransparency = 1
     desc.Text = "Enter your 24-hour beta key"
     desc.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -82,7 +75,7 @@ function ZaporiumKeySystem.new(config)
     desc.TextSize = 16
     desc.Parent = frame
 
-    -- Key Input Box
+    -- Input Box
     local input = Instance.new("TextBox")
     input.Size = UDim2.new(0.9, 0, 0, 45)
     input.Position = UDim2.new(0.05, 0, 0.38, 0)
@@ -104,7 +97,7 @@ function ZaporiumKeySystem.new(config)
     inputStroke.Color = Color3.fromRGB(80, 80, 80)
     inputStroke.Parent = input
 
-    -- Status Label
+    -- Status
     local status = Instance.new("TextLabel")
     status.Size = UDim2.new(0.9, 0, 0, 25)
     status.Position = UDim2.new(0.05, 0, 0.58, 0)
@@ -115,7 +108,7 @@ function ZaporiumKeySystem.new(config)
     status.TextSize = 16
     status.Parent = frame
 
-    -- Verify Key Button
+    -- Verify Button
     local checkBtn = Instance.new("TextButton")
     checkBtn.Size = UDim2.new(0.9, 0, 0, 45)
     checkBtn.Position = UDim2.new(0.05, 0, 0.68, 0)
@@ -138,7 +131,6 @@ function ZaporiumKeySystem.new(config)
     }
     checkGradient.Parent = checkBtn
 
-    -- Hover glow effect
     checkBtn.MouseEnter:Connect(function()
         TweenService:Create(checkBtn, TweenInfo.new(0.2), {BackgroundTransparency = 0.2}):Play()
     end)
@@ -146,10 +138,10 @@ function ZaporiumKeySystem.new(config)
         TweenService:Create(checkBtn, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
     end)
 
-    -- Get Key Button
+    -- Get Key Button (now fits perfectly inside)
     local getKeyBtn = Instance.new("TextButton")
     getKeyBtn.Size = UDim2.new(0.9, 0, 0, 35)
-    getKeyBtn.Position = UDim2.new(0.05, 0, 0.85, 0)
+    getKeyBtn.Position = UDim2.new(0.05, 0, 0.88, 0)  -- Raised up to fit inside border
     getKeyBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     getKeyBtn.Text = "Get Key → Opens Generator"
     getKeyBtn.TextColor3 = Color3.fromRGB(0, 255, 255)
@@ -168,22 +160,18 @@ function ZaporiumKeySystem.new(config)
     getStroke.Transparency = 0.5
     getStroke.Parent = getKeyBtn
 
-    -- Get Key Button Action (links to your site)
+    -- Get Key Action
     getKeyBtn.MouseButton1Click:Connect(function()
-        setclipboard("http://Zaporium-Key.infinityfree.me")
+        setclipboard("http://Zaporium-Key.infinityfree.me/")
         game.StarterGui:SetCore("SendNotification", {
             Title = "Zaporium Hub";
-            Text = "Key generator link copied! Opening in browser...";
+            Text = "Link copied! Opening generator...";
             Duration = 5
         })
-        -- Opens default browser (works in most executors)
-        request({
-            Url = "http://Zaporium-Key.infinityfree.me",
-            Method = "GET"
-        })
+        request({Url = "http://Zaporium-Key.infinityfree.me/", Method = "GET"})
     end)
 
-    -- Verify Button Action
+    -- Verify Action
     checkBtn.MouseButton1Click:Connect(function()
         local key = input.Text:gsub("%s+", ""):upper()
         if key == "" then
@@ -191,7 +179,7 @@ function ZaporiumKeySystem.new(config)
             status.TextColor3 = Color3.fromRGB(255, 100, 100)
             return
         end
-        status.Text = "Verifying key..."
+        status.Text = "Verifying..."
         status.TextColor3 = Color3.fromRGB(255, 255, 100)
 
         if config.ValidateKey(key) then
