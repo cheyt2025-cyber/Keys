@@ -1,48 +1,60 @@
--- ZAPORIUM HUB LOADER - UPDATED FOR YOUR WEBSITE (True 24h Expiry + Server Validation)
--- Site: http://Zaporium-Key.infinityfree.me
--- Key validation now fully controlled by your website (keys expire after 24 hours server-side)
+-- ZAPORIUM HUB LOADER - FINAL FIXED VERSION
+-- Validation URL uses proxy (required for InfinityFree)
 
-local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/ZaporiumKeySystem.lua"))()
+local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/refs/heads/main/ZaporiumKeySystem.lua"))()
 
--- NEW: Validation URL points to your website's validate.php
+-- CORRECT VALIDATION URL (uses proxy.php)
 local VALIDATION_URL = "http://Zaporium-Key.infinityfree.me/proxy.php?t=validate&key="
 
 local SAVE_FILE = "ZaporiumKeySave.txt"
 
 local function isKeyValid(key)
     key = key:gsub("%s+", ""):upper()
-    if #key < 10 then return false end
-    -- Format check (ZAP-XXXX-XXXX-XXXX)
-    if not key:match("^ZAP%-[%w]+%-[%w]+%-[%w]+$") then return false end
-    
-    -- Server-side validation (checks if key exists AND not expired)
-    local success, response = pcall(function()
-        return game:HttpGet(VALIDATION_URL .. key)
-    end)
-    if not success then 
-        warn("[Zaporium] Validation failed (no internet or server down)")
+    if #key < 10 or not key:match("^ZAP%-[%w]+%-[%w]+%-[%w]+$") then 
         return false 
     end
-    return response:find("VALID") ~= nil
+    
+    local success, response = pcall(function()
+        return game:HttpGet(VALIDATION_URL .. key, true)
+    end)
+    
+    if not success then
+        warn("[Zaporium] Connection failed: " .. response)
+        game.StarterGui:SetCore("SendNotification",{
+            Title = "Zaporium Hub";
+            Text = "Server error - Contact owner (proxy.php missing?)";
+            Duration = 10
+        })
+        return false
+    end
+    
+    if response:find("VALID") then
+        return true
+    elseif response:find("EXPIRED") then
+        return false
+    else
+        warn("[Zaporium] Unexpected response: " .. response)
+        return false
+    end
 end
 
 local function scheduleDeleteAfter24h()
-    task.delay(24*60*60 + 60, function()  -- +60s buffer
+    task.delay(24*60*60 + 120, function()
         if isfile and isfile(SAVE_FILE) then
             delfile(SAVE_FILE)
-            print("[Zaporium] 24h expired → saved key deleted locally")
+            print("[Zaporium] Key expired - saved key deleted")
         end
     end)
 end
 
--- Try saved key first (instant load if still valid)
+-- Check saved key
 if isfile and isfile(SAVE_FILE) then
     local savedKey = readfile(SAVE_FILE):gsub("%s+", ""):upper()
     if isKeyValid(savedKey) then
-        print("[Zaporium] Saved key still valid → loading instantly...")
+        print("[Zaporium] Saved key valid - instant load")
         scheduleDeleteAfter24h()
         
-        -- FULL GAME LIST (kept exactly as your original)
+        -- YOUR FULL GAME LIST (unchanged)
         local Games = {
             [99879949355467]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Army%20Factory",
             [99421051519131]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Color%20Game%20Inf",
@@ -73,25 +85,26 @@ if isfile and isfile(SAVE_FILE) then
                 Duration = 8
             })
         end
-        return  -- Stop here: no GUI shown
+        return
     else
         if isfile(SAVE_FILE) then delfile(SAVE_FILE) end
     end
 end
 
--- No valid saved key → show key GUI
+-- Show GUI if no valid saved key
 ZaporiumKeySystem.new({
     Title = "ZAPORIUM HUB",
     Description = "Get key at: Zaporium-Key.infinityfree.me",
     ValidateKey = function(key)
         local valid = isKeyValid(key)
         if valid and writefile then
-            writefile(SAVE_FILE, key:gsub("%s+", ""):upper())
+            writefile(SAVE_FILE, key)
             scheduleDeleteAfter24h()
         end
         return valid
     end,
     OnSuccess = function()
+        -- Same game list again for GUI path
         local Games = {
             [99879949355467]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Army%20Factory",
             [99421051519131]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Color%20Game%20Inf",
@@ -104,7 +117,7 @@ ZaporiumKeySystem.new({
             [96716540422444]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Don%E2%80%99t%20Steal%20%20The%20Baddies",
             [109073199927285]  = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Escape%20The%20Tsunami",
             [136404558442020]  = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Kayak%20and%20surf",
-            [116681772517483]  = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Mutate%20or%20Lose%20Brainrot",
+            [116681772517483]  = "https://raw.githubusercontent.com/cheyt2025-cy/refs/heads/main/Mutate%20or%20Lose%20Brainrot",
             [155615604]        = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Prison%20Life",
             [76137189788863]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Raft%20Tycoon",
             [78949013360566]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Shoot%20a%20Brainrot%20New%20UPD",
