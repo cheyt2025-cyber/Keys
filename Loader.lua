@@ -1,10 +1,10 @@
--- ZAPORIUM HUB LOADER - FINAL FIXED VERSION
--- Validation URL uses proxy (required for InfinityFree)
+-- ZAPORIUM HUB LOADER - FIXED FOR INFINITYFREE BLOCK
+-- Uses corsproxy.io to bypass anti-hotlinking
 
 local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/refs/heads/main/ZaporiumKeySystem.lua"))()
 
--- CORRECT VALIDATION URL (uses proxy.php)
-local VALIDATION_URL = "http://Zaporium-Key.infinityfree.me/proxy.php?t=validate&key="
+-- NEW FIXED URL (bypasses InfinityFree security block)
+local VALIDATION_URL = "https://corsproxy.io/?http://Zaporium-Key.infinityfree.me/proxy.php?t=validate&key="
 
 local SAVE_FILE = "ZaporiumKeySave.txt"
 
@@ -19,21 +19,28 @@ local function isKeyValid(key)
     end)
     
     if not success then
-        warn("[Zaporium] Connection failed: " .. response)
+        warn("[Zaporium] Connection failed: " .. tostring(response))
         game.StarterGui:SetCore("SendNotification",{
             Title = "Zaporium Hub";
-            Text = "Server error - Contact owner (proxy.php missing?)";
+            Text = "Connection failed - Try again later";
             Duration = 10
         })
         return false
     end
     
-    if response:find("VALID") then
+    response = response:match("^%s*(.-)%s*$")  -- trim
+    
+    if response == "VALID" then
         return true
-    elseif response:find("EXPIRED") then
+    elseif response == "EXPIRED" then
+        game.StarterGui:SetCore("SendNotification",{
+            Title = "Zaporium Hub";
+            Text = "Your key has expired (24h limit)";
+            Duration = 8
+        })
         return false
     else
-        warn("[Zaporium] Unexpected response: " .. response)
+        warn("[Zaporium] Bad response: " .. response)
         return false
     end
 end
@@ -42,20 +49,19 @@ local function scheduleDeleteAfter24h()
     task.delay(24*60*60 + 120, function()
         if isfile and isfile(SAVE_FILE) then
             delfile(SAVE_FILE)
-            print("[Zaporium] Key expired - saved key deleted")
+            print("[Zaporium] Key expired locally")
         end
     end)
 end
 
--- Check saved key
+-- Saved key check
 if isfile and isfile(SAVE_FILE) then
     local savedKey = readfile(SAVE_FILE):gsub("%s+", ""):upper()
     if isKeyValid(savedKey) then
-        print("[Zaporium] Saved key valid - instant load")
+        print("[Zaporium] Saved key valid → instant load")
         scheduleDeleteAfter24h()
         
-        -- YOUR FULL GAME LIST (unchanged)
-        local Games = {
+        local Games = { -- your full game list (unchanged)
             [99879949355467]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Army%20Factory",
             [99421051519131]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Color%20Game%20Inf",
             [129854327403392]  = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Brainrot%20morph%20or%20die",
@@ -91,10 +97,8 @@ if isfile and isfile(SAVE_FILE) then
     end
 end
 
--- Show GUI if no valid saved key
+-- Show GUI
 ZaporiumKeySystem.new({
-    Title = "ZAPORIUM HUB",
-    Description = "Get key at: Zaporium-Key.infinityfree.me",
     ValidateKey = function(key)
         local valid = isKeyValid(key)
         if valid and writefile then
@@ -104,8 +108,7 @@ ZaporiumKeySystem.new({
         return valid
     end,
     OnSuccess = function()
-        -- Same game list again for GUI path
-        local Games = {
+        local Games = { -- same list again
             [99879949355467]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Army%20Factory",
             [99421051519131]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Color%20Game%20Inf",
             [129854327403392]  = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Brainrot%20morph%20or%20die",
@@ -117,7 +120,7 @@ ZaporiumKeySystem.new({
             [96716540422444]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Don%E2%80%99t%20Steal%20%20The%20Baddies",
             [109073199927285]  = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Escape%20The%20Tsunami",
             [136404558442020]  = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Kayak%20and%20surf",
-            [116681772517483]  = "https://raw.githubusercontent.com/cheyt2025-cy/refs/heads/main/Mutate%20or%20Lose%20Brainrot",
+            [116681772517483]  = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Mutate%20or%20Lose%20Brainrot",
             [155615604]        = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Prison%20Life",
             [76137189788863]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Raft%20Tycoon",
             [78949013360566]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Shoot%20a%20Brainrot%20New%20UPD",
