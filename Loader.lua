@@ -1,9 +1,8 @@
--- ZAPORIUM HUB LOADER - FULLY WORKING (Supports ZAPFREE + Normal Keys)
--- Fixed ZAPFREE validation with corsproxy.io
+-- ZAPORIUM HUB LOADER - ZAPFREE NEVER SAVES + INSTANT DELETE ON LEAVE
+-- Normal keys save for 24h, ZAPFREE never saves and deletes instantly on leave
 
 local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/refs/heads/main/ZaporiumKeySystem.lua"))()
 
--- Validation URLs
 local NORMAL_VALIDATION_URL = "https://corsproxy.io/?http://Zaporium-Key.infinityfree.me/proxy.php?t=validate&key="
 local GLOBAL_CHECK_URL = "https://corsproxy.io/?http://Zaporium-Key.infinityfree.me/global_check.php"
 
@@ -18,7 +17,7 @@ local function isKeyValid(key)
             return game:HttpGet(GLOBAL_CHECK_URL)
         end)
         if success then
-            response = response:match("^%s*(.-)%s*$")  -- Trim whitespace
+            response = response:match("^%s*(.-)%s*$")
             if response == "ACTIVE" then
                 return true
             end
@@ -47,15 +46,17 @@ local function scheduleDeleteAfter24h()
     task.delay(24*60*60 + 120, function()
         if isfile and isfile(SAVE_FILE) then
             delfile(SAVE_FILE)
-            print("[Zaporium] Normal key expired locally")
         end
     end)
 end
 
--- Check saved key (only for normal keys, ZAPFREE doesn't save)
+-- Check saved key (only normal keys are saved)
 if isfile and isfile(SAVE_FILE) then
     local savedKey = readfile(SAVE_FILE):gsub("%s+", ""):upper()
-    if isKeyValid(savedKey) then
+    if savedKey == "ZAPFREE" then
+        -- If somehow ZAPFREE was saved before, delete it immediately
+        delfile(SAVE_FILE)
+    elseif isKeyValid(savedKey) then
         scheduleDeleteAfter24h()
         
         local Games = {
@@ -86,7 +87,7 @@ if isfile and isfile(SAVE_FILE) then
         end
         return
     else
-        if isfile(SAVE_FILE) then delfile(SAVE_FILE) end
+        delfile(SAVE_FILE)
     end
 end
 
@@ -94,7 +95,7 @@ end
 ZaporiumKeySystem.new({
     ValidateKey = function(key)
         local valid = isKeyValid(key)
-        -- Only save normal keys (not ZAPFREE)
+        -- Never save ZAPFREE (force input every time)
         if valid and key ~= "ZAPFREE" and writefile then
             writefile(SAVE_FILE, key)
             scheduleDeleteAfter24h()
@@ -102,6 +103,11 @@ ZaporiumKeySystem.new({
         return valid
     end,
     OnSuccess = function()
+        -- Delete ZAPFREE immediately after success (on leave/rejoin, GUI shows again)
+        if readfile and isfile and readfile(SAVE_FILE) == "ZAPFREE" then
+            delfile(SAVE_FILE)
+        end
+        
         local Games = {
             [99879949355467]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Army%20Factory",
             [99421051519131]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Color%20Game%20Inf",
