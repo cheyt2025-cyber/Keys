@@ -1,186 +1,151 @@
--- ZAPORIUM KEY SYSTEM (Updated with Get Key, Verify Key, and Verifying indicator)
--- Keeps the exact same visual design as before, only changes/replaces the bottom buttons for better functionality.
-
-local KeySystem = {}
-KeySystem.__index = KeySystem
+-- ZAPORIUM KEY SYSTEM (GUI ONLY)
+-- UI Only | Mobile Optimized | Loader Compatible
 
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local CoreGui = game:GetService("CoreGui")
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
 
-function KeySystem.new(config)
-    local self = setmetatable({}, KeySystem)
-    
-    self.ValidateKey = config.ValidateKey or function(key) return true end
-    self.OnSuccess = config.OnSuccess or function() end
-    
-    self:CreateUI()
-    return self
+-- Destroy existing if reloaded
+if PlayerGui:FindFirstChild("ZaporiumKeySystem") then
+	PlayerGui.ZaporiumKeySystem:Destroy()
 end
 
-function KeySystem:CreateUI()
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Parent = CoreGui
-    screenGui.Name = "ZaporiumKeySystem"
-    screenGui.ResetOnSpawn = false
+-- ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ZaporiumKeySystem"
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
 
-    local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 400, 0, 300)
-    mainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    mainFrame.BorderSizePixel = 0
-    mainFrame.Parent = screenGui
+-- Main Container
+local Main = Instance.new("Frame")
+Main.Size = UDim2.fromScale(0.88, 0.42)
+Main.Position = UDim2.fromScale(0.5, 0.5)
+Main.AnchorPoint = Vector2.new(0.5, 0.5)
+Main.BackgroundColor3 = Color3.fromRGB(20, 45, 90) -- Primary Blue (60%)
+Main.BackgroundTransparency = 0.12
+Main.BorderSizePixel = 0
+Main.Parent = ScreenGui
 
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = mainFrame
+local Corner = Instance.new("UICorner", Main)
+Corner.CornerRadius = UDim.new(0, 14) -- NOT too smooth
 
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 0, 50)
-    title.Position = UDim2.new(0, 0, 0, 0)
-    title.BackgroundTransparency = 1
-    title.Text = "ZAPORIUM KEY SYSTEM"
-    title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    title.Font = Enum.Font.GothamBold
-    title.TextSize = 24
-    title.Parent = mainFrame
+local Stroke = Instance.new("UIStroke", Main)
+Stroke.Color = Color3.fromRGB(90, 140, 220)
+Stroke.Thickness = 1.1
+Stroke.Transparency = 0.35
 
-    local welcomeDesc = Instance.new("TextLabel")
-    welcomeDesc.Size = UDim2.new(1, -40, 0, 60)
-    welcomeDesc.Position = UDim2.new(0, 20, 0, 50)
-    welcomeDesc.BackgroundTransparency = 1
-    welcomeDesc.Text = "Welcome back!\nEnter your key to continue using Zaporium Hub.\nNormal keys last 24 hours, ZAPFREE is instant delete on leave."
-    welcomeDesc.TextColor3 = Color3.fromRGB(200, 200, 200)
-    welcomeDesc.Font = Enum.Font.Gotham
-    welcomeDesc.TextSize = 16
-    welcomeDesc.TextWrapped = true
-    welcomeDesc.TextYAlignment = Enum.TextYAlignment.Top
-    welcomeDesc.Parent = mainFrame
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.fromScale(1, 0.22)
+Title.BackgroundTransparency = 1
+Title.Text = "ZAPORIUM KEY SYSTEM"
+Title.Font = Enum.Font.GothamMedium
+Title.TextScaled = true
+Title.TextColor3 = Color3.fromRGB(230, 240, 255)
+Title.Parent = Main
 
-    local keyBox = Instance.new("TextBox")
-    keyBox.Size = UDim2.new(0.9, 0, 0, 40)
-    keyBox.Position = UDim2.new(0.05, 0, 0, 120)
-    keyBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    keyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    keyBox.PlaceholderText = "Enter key..."
-    keyBox.Font = Enum.Font.Gotham
-    keyBox.TextSize = 18
-    keyBox.ClearTextOnFocus = false
-    keyBox.Parent = mainFrame
+-- Input Container
+local InputHolder = Instance.new("Frame")
+InputHolder.Size = UDim2.fromScale(0.88, 0.22)
+InputHolder.Position = UDim2.fromScale(0.5, 0.35)
+InputHolder.AnchorPoint = Vector2.new(0.5, 0.5)
+InputHolder.BackgroundColor3 = Color3.fromRGB(15, 30, 60) -- Secondary (30%)
+InputHolder.BackgroundTransparency = 0.18
+InputHolder.BorderSizePixel = 0
+InputHolder.Parent = Main
 
-    local keyCorner = Instance.new("UICorner")
-    keyCorner.CornerRadius = UDim.new(0, 8)
-    keyCorner.Parent = keyBox
+local InputCorner = Instance.new("UICorner", InputHolder)
+InputCorner.CornerRadius = UDim.new(0, 10)
 
-    local continueBtn = Instance.new("TextButton")
-    continueBtn.Size = UDim2.new(0.9, 0, 0, 40)
-    continueBtn.Position = UDim2.new(0.05, 0, 0, 170)
-    continueBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-    continueBtn.Text = "Continue"
-    continueBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    continueBtn.Font = Enum.Font.GothamBold
-    continueBtn.TextSize = 18
-    continueBtn.Parent = mainFrame
+-- TextBox
+local KeyBox = Instance.new("TextBox")
+KeyBox.Size = UDim2.fromScale(0.94, 0.7)
+KeyBox.Position = UDim2.fromScale(0.5, 0.5)
+KeyBox.AnchorPoint = Vector2.new(0.5, 0.5)
+KeyBox.PlaceholderText = "Enter your key here..."
+KeyBox.Text = ""
+KeyBox.Font = Enum.Font.Gotham
+KeyBox.TextScaled = true
+KeyBox.TextColor3 = Color3.fromRGB(220, 235, 255)
+KeyBox.BackgroundColor3 = Color3.fromRGB(10, 20, 40)
+KeyBox.BackgroundTransparency = 0.15
+KeyBox.ClearTextOnFocus = false
+KeyBox.Parent = InputHolder
 
-    local continueCorner = Instance.new("UICorner")
-    continueCorner.CornerRadius = UDim.new(0, 8)
-    continueCorner.Parent = continueBtn
+local BoxCorner = Instance.new("UICorner", KeyBox)
+BoxCorner.CornerRadius = UDim.new(0, 8)
 
-    -- New buttons and indicator (replaces old Receive/Check/Discord layout but keeps similar spacing)
-    local getKeyBtn = Instance.new("TextButton")
-    getKeyBtn.Size = UDim2.new(0.44, -5, 0, 35)
-    getKeyBtn.Position = UDim2.new(0.05, 0, 1, -80)
-    getKeyBtn.BackgroundTransparency = 1
-    getKeyBtn.Text = "Get Key"
-    getKeyBtn.TextColor3 = Color3.fromRGB(100, 180, 255)
-    getKeyBtn.Font = Enum.Font.GothamBold
-    getKeyBtn.TextSize = 16
-    getKeyBtn.Parent = mainFrame
+-- Buttons Holder
+local ButtonHolder = Instance.new("Frame")
+ButtonHolder.Size = UDim2.fromScale(0.88, 0.24)
+ButtonHolder.Position = UDim2.fromScale(0.5, 0.68)
+ButtonHolder.AnchorPoint = Vector2.new(0.5, 0.5)
+ButtonHolder.BackgroundTransparency = 1
+ButtonHolder.Parent = Main
 
-    local verifyKeyBtn = Instance.new("TextButton")
-    verifyKeyBtn.Size = UDim2.new(0.44, -5, 0, 35)
-    verifyKeyBtn.Position = UDim2.new(0.51, 5, 1, -80)
-    verifyKeyBtn.BackgroundTransparency = 1
-    verifyKeyBtn.Text = "Verify Key"
-    verifyKeyBtn.TextColor3 = Color3.fromRGB(100, 180, 255)
-    verifyKeyBtn.Font = Enum.Font.GothamBold
-    verifyKeyBtn.TextSize = 16
-    verifyKeyBtn.Parent = mainFrame
+local UIList = Instance.new("UIListLayout", ButtonHolder)
+UIList.FillDirection = Enum.FillDirection.Horizontal
+UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIList.Padding = UDim.new(0.06, 0)
 
-    local indicator = Instance.new("TextLabel")
-    indicator.Size = UDim2.new(0.9, 0, 0, 30)
-    indicator.Position = UDim2.new(0.05, 0, 1, -40)
-    indicator.BackgroundTransparency = 1
-    indicator.Text = ""
-    indicator.TextColor3 = Color3.fromRGB(255, 255, 255)
-    indicator.Font = Enum.Font.Gotham
-    indicator.TextSize = 15
-    indicator.Parent = mainFrame
+-- Button Template
+local function createButton(text)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.fromScale(0.42, 1)
+	btn.Text = text
+	btn.Font = Enum.Font.GothamMedium
+	btn.TextScaled = true
+	btn.TextColor3 = Color3.fromRGB(240, 245, 255)
+	btn.BackgroundColor3 = Color3.fromRGB(40, 110, 200) -- Accent (10%)
+	btn.BackgroundTransparency = 0.08
+	btn.BorderSizePixel = 0
 
-    -- Functionality
-    continueBtn.MouseButton1Click:Connect(function()
-        local key = keyBox.Text
-        if key == "" then
-            keyBox.PlaceholderText = "Please enter a key!"
-            return
-        end
-        
-        indicator.Text = "Verifying your key..."
-        indicator.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow while verifying
-        
-        wait(1.5) -- Small delay to show the verifying message (feel free to remove or adjust)
-        
-        if self.ValidateKey(key) then
-            indicator.Text = "Key verified successfully!"
-            indicator.TextColor3 = Color3.fromRGB(0, 255, 0)
-            wait(0.8)
-            screenGui:Destroy()
-            self.OnSuccess()
-        else
-            indicator.Text = "Invalid key!"
-            indicator.TextColor3 = Color3.fromRGB(255, 0, 0)
-            keyBox.Text = ""
-            keyBox.PlaceholderText = "Invalid key! Try again."
-            wait(2)
-            indicator.Text = ""
-        end
-    end)
+	local c = Instance.new("UICorner", btn)
+	c.CornerRadius = UDim.new(0, 10)
 
-    verifyKeyBtn.MouseButton1Click:Connect(function()
-        continueBtn.MouseButton1Click:Fire() -- Same as clicking Continue
-    end)
+	local s = Instance.new("UIStroke", btn)
+	s.Color = Color3.fromRGB(140, 180, 255)
+	s.Transparency = 0.45
 
-    getKeyBtn.MouseButton1Click:Connect(function()
-        setclipboard("https://your-key-link-here.com") -- <<< REPLACE WITH YOUR ACTUAL KEY LINK >>>
-        indicator.Text = "Link copied to clipboard!"
-        indicator.TextColor3 = Color3.fromRGB(0, 255, 0)
-        wait(2)
-        indicator.Text = ""
-    end)
-
-    -- Optional fade-in
-    mainFrame.BackgroundTransparency = 1
-    for _, child in pairs(mainFrame:GetChildren()) do
-        if child:IsA("GuiObject") then
-            child.BackgroundTransparency = 1
-            if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
-                child.TextTransparency = 1
-            end
-        end
-    end
-    TweenService:Create(mainFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
-    -- Fade in children (simple loop)
-    spawn(function()
-        wait(0.2)
-        for _, child in pairs(mainFrame:GetChildren()) do
-            if child:IsA("GuiObject") then
-                TweenService:Create(child, TweenInfo.new(0.4), {BackgroundTransparency = child.BackgroundTransparency == 1 and 1 or 0}):Play()
-                if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
-                    TweenService:Create(child, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
-                end
-            end
-        end
-    end)
+	return btn
 end
 
-return KeySystem
+local GetKey = createButton("Get Key")
+GetKey.Parent = ButtonHolder
+
+local VerifyKey = createButton("Verify Key")
+VerifyKey.Parent = ButtonHolder
+
+-- Notification
+local Notify = Instance.new("TextLabel")
+Notify.Size = UDim2.fromScale(0.7, 0.12)
+Notify.Position = UDim2.fromScale(0.5, 0.95)
+Notify.AnchorPoint = Vector2.new(0.5, 1)
+Notify.BackgroundColor3 = Color3.fromRGB(30, 90, 170)
+Notify.BackgroundTransparency = 0.18
+Notify.Text = "Ready"
+Notify.Font = Enum.Font.Gotham
+Notify.TextScaled = true
+Notify.TextColor3 = Color3.fromRGB(230, 240, 255)
+Notify.Visible = true
+Notify.Parent = Main
+
+local NC = Instance.new("UICorner", Notify)
+NC.CornerRadius = UDim.new(0, 8)
+
+-- Hover Feedback (Subtle)
+local function hover(btn)
+	btn.MouseEnter:Connect(function()
+		btn.BackgroundTransparency = 0
+	end)
+	btn.MouseLeave:Connect(function()
+		btn.BackgroundTransparency = 0.08
+	end)
+end
+
+hover(GetKey)
+hover(VerifyKey)
+
+-- PUBLIC ACCESS FOR LOADER
+_G.ZaporiumKeyBox = KeyBox
