@@ -1,5 +1,5 @@
--- ZAPORIUM KEY SYSTEM (Optimized with Get Key, Verify Key, Copy Link Feedback, and Verifying Indicator)
--- Keeps the exact same visual design as before, only enhances functionality.
+-- ZAPORIUM KEY SYSTEM (Updated with Get Key, Verify Key, and Verifying indicator)
+-- Keeps the exact same visual design as before, only changes/replaces the bottom buttons for better functionality.
 
 local KeySystem = {}
 KeySystem.__index = KeySystem
@@ -76,7 +76,7 @@ function KeySystem:CreateUI()
     continueBtn.Size = UDim2.new(0.9, 0, 0, 40)
     continueBtn.Position = UDim2.new(0.05, 0, 0, 170)
     continueBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-    continueBtn.Text = "Verify Key"
+    continueBtn.Text = "Continue"
     continueBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     continueBtn.Font = Enum.Font.GothamBold
     continueBtn.TextSize = 18
@@ -86,88 +86,101 @@ function KeySystem:CreateUI()
     continueCorner.CornerRadius = UDim.new(0, 8)
     continueCorner.Parent = continueBtn
 
-    -- Get Key button (left)
+    -- New buttons and indicator (replaces old Receive/Check/Discord layout but keeps similar spacing)
     local getKeyBtn = Instance.new("TextButton")
-    getKeyBtn.Size = UDim2.new(0.44, -5, 0, 30)
-    getKeyBtn.Position = UDim2.new(0.05, 0, 1, -40)
+    getKeyBtn.Size = UDim2.new(0.44, -5, 0, 35)
+    getKeyBtn.Position = UDim2.new(0.05, 0, 1, -80)
     getKeyBtn.BackgroundTransparency = 1
     getKeyBtn.Text = "Get Key"
     getKeyBtn.TextColor3 = Color3.fromRGB(100, 180, 255)
     getKeyBtn.Font = Enum.Font.GothamBold
-    getKeyBtn.TextSize = 15
+    getKeyBtn.TextSize = 16
     getKeyBtn.Parent = mainFrame
 
-    -- Indicator label (right, shows Verifying... or Link Copied!)
-    local indicatorLabel = Instance.new("TextLabel")
-    indicatorLabel.Size = UDim2.new(0.44, -5, 0, 30)
-    indicatorLabel.Position = UDim2.new(0.51, 5, 1, -40)
-    indicatorLabel.BackgroundTransparency = 1
-    indicatorLabel.Text = ""
-    indicatorLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-    indicatorLabel.Font = Enum.Font.Gotham
-    indicatorLabel.TextSize = 14
-    indicatorLabel.TextXAlignment = Enum.TextXAlignment.Right
-    indicatorLabel.Parent = mainFrame
+    local verifyKeyBtn = Instance.new("TextButton")
+    verifyKeyBtn.Size = UDim2.new(0.44, -5, 0, 35)
+    verifyKeyBtn.Position = UDim2.new(0.51, 5, 1, -80)
+    verifyKeyBtn.BackgroundTransparency = 1
+    verifyKeyBtn.Text = "Verify Key"
+    verifyKeyBtn.TextColor3 = Color3.fromRGB(100, 180, 255)
+    verifyKeyBtn.Font = Enum.Font.GothamBold
+    verifyKeyBtn.TextSize = 16
+    verifyKeyBtn.Parent = mainFrame
 
-    local discordBtn = Instance.new("TextButton")
-    discordBtn.Size = UDim2.new(0.9, 0, 0, 30)
-    discordBtn.Position = UDim2.new(0.05, 0, 1, -80)
-    discordBtn.BackgroundTransparency = 1
-    discordBtn.Text = "Discord"
-    discordBtn.TextColor3 = Color3.fromRGB(100, 180, 255)
-    discordBtn.Font = Enum.Font.GothamBold
-    discordBtn.TextSize = 16
-    discordBtn.Parent = mainFrame
+    local indicator = Instance.new("TextLabel")
+    indicator.Size = UDim2.new(0.9, 0, 0, 30)
+    indicator.Position = UDim2.new(0.05, 0, 1, -40)
+    indicator.BackgroundTransparency = 1
+    indicator.Text = ""
+    indicator.TextColor3 = Color3.fromRGB(255, 255, 255)
+    indicator.Font = Enum.Font.Gotham
+    indicator.TextSize = 15
+    indicator.Parent = mainFrame
 
     -- Functionality
     continueBtn.MouseButton1Click:Connect(function()
         local key = keyBox.Text
-        if key == "" or key == "Enter key..." then
+        if key == "" then
             keyBox.PlaceholderText = "Please enter a key!"
             return
         end
-
-        -- Show verifying indicator
-        indicatorLabel.Text = "Verifying your key..."
-        indicatorLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
-
-        -- Simulate verification (or call your real ValidateKey)
+        
+        indicator.Text = "Verifying your key..."
+        indicator.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow while verifying
+        
+        wait(1.5) -- Small delay to show the verifying message (feel free to remove or adjust)
+        
         if self.ValidateKey(key) then
-            indicatorLabel.Text = "Key verified!"
-            indicatorLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+            indicator.Text = "Key verified successfully!"
+            indicator.TextColor3 = Color3.fromRGB(0, 255, 0)
             wait(0.8)
             screenGui:Destroy()
             self.OnSuccess()
         else
-            indicatorLabel.Text = "Invalid key!"
-            indicatorLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+            indicator.Text = "Invalid key!"
+            indicator.TextColor3 = Color3.fromRGB(255, 0, 0)
             keyBox.Text = ""
             keyBox.PlaceholderText = "Invalid key! Try again."
             wait(2)
-            indicatorLabel.Text = ""
+            indicator.Text = ""
         end
     end)
 
-    getKeyBtn.MouseButton1Click:Connect(function()
-        setclipboard("https://your-key-link-here.com")  -- <<< REPLACE WITH YOUR ACTUAL KEY LINK
-        indicatorLabel.Text = "Link copied!"
-        indicatorLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-        wait(2)
-        indicatorLabel.Text = ""
+    verifyKeyBtn.MouseButton1Click:Connect(function()
+        continueBtn.MouseButton1Click:Fire() -- Same as clicking Continue
     end)
 
-    discordBtn.MouseButton1Click:Connect(function()
-        setclipboard("https://discord.gg/your-discord-invite")  -- <<< REPLACE WITH YOUR DISCORD INVITE
-        -- Optional: show feedback
-        indicatorLabel.Text = "Discord link copied!"
-        indicatorLabel.TextColor3 = Color3.fromRGB(100, 180, 255)
+    getKeyBtn.MouseButton1Click:Connect(function()
+        setclipboard("https://your-key-link-here.com") -- <<< REPLACE WITH YOUR ACTUAL KEY LINK >>>
+        indicator.Text = "Link copied to clipboard!"
+        indicator.TextColor3 = Color3.fromRGB(0, 255, 0)
         wait(2)
-        indicatorLabel.Text = ""
+        indicator.Text = ""
     end)
 
     -- Optional fade-in
     mainFrame.BackgroundTransparency = 1
+    for _, child in pairs(mainFrame:GetChildren()) do
+        if child:IsA("GuiObject") then
+            child.BackgroundTransparency = 1
+            if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
+                child.TextTransparency = 1
+            end
+        end
+    end
     TweenService:Create(mainFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
+    -- Fade in children (simple loop)
+    spawn(function()
+        wait(0.2)
+        for _, child in pairs(mainFrame:GetChildren()) do
+            if child:IsA("GuiObject") then
+                TweenService:Create(child, TweenInfo.new(0.4), {BackgroundTransparency = child.BackgroundTransparency == 1 and 1 or 0}):Play()
+                if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
+                    TweenService:Create(child, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
+                end
+            end
+        end
+    end)
 end
 
 return KeySystem
