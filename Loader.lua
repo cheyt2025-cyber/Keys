@@ -1,24 +1,29 @@
--- ZAPORIUM HUB LOADER - SUPPORTS ZAPFREE GLOBAL KEY
+-- ZAPORIUM HUB LOADER - FULLY WORKING (Supports ZAPFREE + Normal Keys)
+-- Fixed ZAPFREE validation with corsproxy.io
+
 local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/refs/heads/main/ZaporiumKeySystem.lua"))()
 
--- Validation uses proxy + corsproxy to bypass InfinityFree blocks
-local VALIDATION_URL = "https://corsproxy.io/?http://Zaporium-Key.infinityfree.me/proxy.php?t=validate&key="
+-- Validation URLs
+local NORMAL_VALIDATION_URL = "https://corsproxy.io/?http://Zaporium-Key.infinityfree.me/proxy.php?t=validate&key="
+local GLOBAL_CHECK_URL = "https://corsproxy.io/?http://Zaporium-Key.infinityfree.me/global_check.php"
 
 local SAVE_FILE = "ZaporiumKeySave.txt"
 
 local function isKeyValid(key)
     key = key:gsub("%s+", ""):upper()
     
-    -- Special handling for Global Free Key
+    -- Global Free Key: ZAPFREE
     if key == "ZAPFREE" then
         local success, response = pcall(function()
-            return game:HttpGet("https://corsproxy.io/?http://Zaporium-Key.infinityfree.me/global_check.php")
+            return game:HttpGet(GLOBAL_CHECK_URL)
         end)
-        if success and response == "ACTIVE" then
-            return true
-        else
-            return false
+        if success then
+            response = response:match("^%s*(.-)%s*$")  -- Trim whitespace
+            if response == "ACTIVE" then
+                return true
+            end
         end
+        return false
     end
     
     -- Normal key validation
@@ -27,7 +32,7 @@ local function isKeyValid(key)
     end
     
     local success, response = pcall(function()
-        return game:HttpGet(VALIDATION_URL .. key, true)
+        return game:HttpGet(NORMAL_VALIDATION_URL .. key, true)
     end)
     
     if not success then
@@ -42,16 +47,17 @@ local function scheduleDeleteAfter24h()
     task.delay(24*60*60 + 120, function()
         if isfile and isfile(SAVE_FILE) then
             delfile(SAVE_FILE)
+            print("[Zaporium] Normal key expired locally")
         end
     end)
 end
 
--- Check saved key
+-- Check saved key (only for normal keys, ZAPFREE doesn't save)
 if isfile and isfile(SAVE_FILE) then
     local savedKey = readfile(SAVE_FILE):gsub("%s+", ""):upper()
     if isKeyValid(savedKey) then
         scheduleDeleteAfter24h()
-        -- Load games instantly
+        
         local Games = {
             [99879949355467]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Army%20Factory",
             [99421051519131]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Color%20Game%20Inf",
@@ -80,7 +86,7 @@ if isfile and isfile(SAVE_FILE) then
         end
         return
     else
-        delfile(SAVE_FILE)
+        if isfile(SAVE_FILE) then delfile(SAVE_FILE) end
     end
 end
 
@@ -88,6 +94,7 @@ end
 ZaporiumKeySystem.new({
     ValidateKey = function(key)
         local valid = isKeyValid(key)
+        -- Only save normal keys (not ZAPFREE)
         if valid and key ~= "ZAPFREE" and writefile then
             writefile(SAVE_FILE, key)
             scheduleDeleteAfter24h()
@@ -95,7 +102,7 @@ ZaporiumKeySystem.new({
         return valid
     end,
     OnSuccess = function()
-        local Games = { -- same list
+        local Games = {
             [99879949355467]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Army%20Factory",
             [99421051519131]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Color%20Game%20Inf",
             [129854327403392]  = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Brainrot%20morph%20or%20die",
