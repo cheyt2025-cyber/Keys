@@ -1,15 +1,27 @@
--- ZAPORIUM HUB LOADER - FIXED FOR INFINITYFREE BLOCK
--- Uses corsproxy.io to bypass anti-hotlinking
-
+-- ZAPORIUM HUB LOADER - SUPPORTS ZAPFREE GLOBAL KEY
 local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/refs/heads/main/ZaporiumKeySystem.lua"))()
 
--- NEW FIXED URL (bypasses InfinityFree security block)
+-- Validation uses proxy + corsproxy to bypass InfinityFree blocks
 local VALIDATION_URL = "https://corsproxy.io/?http://Zaporium-Key.infinityfree.me/proxy.php?t=validate&key="
 
 local SAVE_FILE = "ZaporiumKeySave.txt"
 
 local function isKeyValid(key)
     key = key:gsub("%s+", ""):upper()
+    
+    -- Special handling for Global Free Key
+    if key == "ZAPFREE" then
+        local success, response = pcall(function()
+            return game:HttpGet("https://corsproxy.io/?http://Zaporium-Key.infinityfree.me/global_check.php")
+        end)
+        if success and response == "ACTIVE" then
+            return true
+        else
+            return false
+        end
+    end
+    
+    -- Normal key validation
     if #key < 10 or not key:match("^ZAP%-[%w]+%-[%w]+%-[%w]+$") then 
         return false 
     end
@@ -19,49 +31,28 @@ local function isKeyValid(key)
     end)
     
     if not success then
-        warn("[Zaporium] Connection failed: " .. tostring(response))
-        game.StarterGui:SetCore("SendNotification",{
-            Title = "Zaporium Hub";
-            Text = "Connection failed - Try again later";
-            Duration = 10
-        })
         return false
     end
     
-    response = response:match("^%s*(.-)%s*$")  -- trim
-    
-    if response == "VALID" then
-        return true
-    elseif response == "EXPIRED" then
-        game.StarterGui:SetCore("SendNotification",{
-            Title = "Zaporium Hub";
-            Text = "Your key has expired (24h limit)";
-            Duration = 8
-        })
-        return false
-    else
-        warn("[Zaporium] Bad response: " .. response)
-        return false
-    end
+    response = response:match("^%s*(.-)%s*$")
+    return response == "VALID"
 end
 
 local function scheduleDeleteAfter24h()
     task.delay(24*60*60 + 120, function()
         if isfile and isfile(SAVE_FILE) then
             delfile(SAVE_FILE)
-            print("[Zaporium] Key expired locally")
         end
     end)
 end
 
--- Saved key check
+-- Check saved key
 if isfile and isfile(SAVE_FILE) then
     local savedKey = readfile(SAVE_FILE):gsub("%s+", ""):upper()
     if isKeyValid(savedKey) then
-        print("[Zaporium] Saved key valid → instant load")
         scheduleDeleteAfter24h()
-        
-        local Games = { -- your full game list (unchanged)
+        -- Load games instantly
+        local Games = {
             [99879949355467]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Army%20Factory",
             [99421051519131]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Color%20Game%20Inf",
             [129854327403392]  = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Brainrot%20morph%20or%20die",
@@ -85,15 +76,11 @@ if isfile and isfile(SAVE_FILE) then
         if link then
             loadstring(game:HttpGet(link))()
         else
-            game.StarterGui:SetCore("SendNotification",{
-                Title = "Zaporium Hub";
-                Text = "Game not supported yet!";
-                Duration = 8
-            })
+            game.StarterGui:SetCore("SendNotification", {Title = "Zaporium Hub"; Text = "Game not supported yet!"; Duration = 8})
         end
         return
     else
-        if isfile(SAVE_FILE) then delfile(SAVE_FILE) end
+        delfile(SAVE_FILE)
     end
 end
 
@@ -101,14 +88,14 @@ end
 ZaporiumKeySystem.new({
     ValidateKey = function(key)
         local valid = isKeyValid(key)
-        if valid and writefile then
+        if valid and key ~= "ZAPFREE" and writefile then
             writefile(SAVE_FILE, key)
             scheduleDeleteAfter24h()
         end
         return valid
     end,
     OnSuccess = function()
-        local Games = { -- same list again
+        local Games = { -- same list
             [99879949355467]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Army%20Factory",
             [99421051519131]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Color%20Game%20Inf",
             [129854327403392]  = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Brainrot%20morph%20or%20die",
@@ -132,11 +119,7 @@ ZaporiumKeySystem.new({
         if link then
             loadstring(game:HttpGet(link))()
         else
-            game.StarterGui:SetCore("SendNotification",{
-                Title = "Zaporium Hub";
-                Text = "Game not supported yet!";
-                Duration = 8
-            })
+            game.StarterGui:SetCore("SendNotification", {Title = "Zaporium Hub"; Text = "Game not supported yet!"; Duration = 8})
         end
     end
 })
